@@ -1,11 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.php",
-      "use": "@vercel/php"
+  "functions": {
+    "api/index.php": {
+      "runtime": "php"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/(.*)",
@@ -23,4 +22,4 @@
     "CACHE_STORE": "file",
     "QUEUE_CONNECTION": "sync"
   }
-  }
+}
