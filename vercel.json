@@ -22,10 +22,5 @@
     "SESSION_DRIVER": "cookie",
     "CACHE_STORE": "file",
     "QUEUE_CONNECTION": "sync"
-  },
-  "functions": {
-    "api/index.php": {
-      "runtime": "php"
-    }
   }
-}
+  }
