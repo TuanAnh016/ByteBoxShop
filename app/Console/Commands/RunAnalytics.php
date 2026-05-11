@@ -27,16 +27,20 @@ class RunAnalytics extends Command
             return self::FAILURE;
         }
 
-        // Pass DB credentials as environment variables
+        // Detect current DB connection and pass credentials
+        $connection = config('database.default', 'pgsql');
+        $dbConfig = config("database.connections.{$connection}", []);
+
         $env = [
-            'DB_HOST'     => config('database.connections.mysql.host', '127.0.0.1'),
-            'DB_PORT'     => config('database.connections.mysql.port', '3306'),
-            'DB_DATABASE' => config('database.connections.mysql.database', 'bytebox'),
-            'DB_USERNAME' => config('database.connections.mysql.username', 'root'),
-            'DB_PASSWORD' => config('database.connections.mysql.password', ''),
+            'DB_CONNECTION' => $connection,
+            'DB_HOST'       => $dbConfig['host'] ?? '127.0.0.1',
+            'DB_PORT'       => $dbConfig['port'] ?? ($connection === 'mysql' ? '3306' : '5432'),
+            'DB_DATABASE'   => $dbConfig['database'] ?? 'bytebox',
+            'DB_USERNAME'   => $dbConfig['username'] ?? 'root',
+            'DB_PASSWORD'   => $dbConfig['password'] ?? '',
         ];
 
-        // Set environment variables for the current process so the child process (Python) inherits them
+        // Set environment variables for the child process (Python)
         foreach ($env as $k => $v) {
             putenv("$k=$v");
         }

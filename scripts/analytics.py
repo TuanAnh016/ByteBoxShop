@@ -3,6 +3,7 @@
 ByteBox Data Analytics Script
 Analyzes purchasing patterns by age group and gender from the database.
 Outputs results as JSON to stdout.
+Supports both MySQL and PostgreSQL.
 """
 
 import sys
@@ -15,19 +16,45 @@ if sys.stdout.encoding != 'UTF-8':
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-# Try to import required packages
-try:
-    import mysql.connector
-except ImportError:
-    print(json.dumps({"error": "mysql-connector-python not installed. Run: pip install mysql-connector-python"}))
-    sys.exit(1)
-
 # --- DB Config from environment or defaults ---
+DB_CONNECTION = os.environ.get('DB_CONNECTION', 'pgsql')
 DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
-DB_PORT = int(os.environ.get('DB_PORT', 3306))
+DB_PORT = int(os.environ.get('DB_PORT', 5432))
 DB_NAME = os.environ.get('DB_DATABASE', 'bytebox')
 DB_USER = os.environ.get('DB_USERNAME', 'root')
-DB_PASS = os.environ.get('DB_PASSWORD', '123456')
+DB_PASS = os.environ.get('DB_PASSWORD', '')
+
+# Try to import the right database driver
+conn = None
+cursor = None
+
+def connect_db():
+    global conn, cursor
+    if DB_CONNECTION == 'mysql':
+        try:
+            import mysql.connector
+        except ImportError:
+            print(json.dumps({"error": "mysql-connector-python not installed. Run: pip install mysql-connector-python"}))
+            sys.exit(1)
+        conn = mysql.connector.connect(
+            host=DB_HOST, port=DB_PORT,
+            database=DB_NAME, user=DB_USER, password=DB_PASS,
+            charset='utf8mb4'
+        )
+        cursor = conn.cursor(dictionary=True)
+    else:
+        # PostgreSQL
+        try:
+            import psycopg2
+            import psycopg2.extras
+        except ImportError:
+            print(json.dumps({"error": "psycopg2 not installed. Run: pip install psycopg2-binary"}))
+            sys.exit(1)
+        conn = psycopg2.connect(
+            host=DB_HOST, port=DB_PORT,
+            dbname=DB_NAME, user=DB_USER, password=DB_PASS
+        )
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
 
 def get_age_group(age):
@@ -48,12 +75,7 @@ def get_age_group(age):
 
 
 def analyze():
-    conn = mysql.connector.connect(
-        host=DB_HOST, port=DB_PORT,
-        database=DB_NAME, user=DB_USER, password=DB_PASS,
-        charset='utf8mb4'
-    )
-    cursor = conn.cursor(dictionary=True)
+    connect_db()
 
     # -----------------------------------------------
     # 1. Gender distribution of buyers
@@ -101,6 +123,9 @@ def analyze():
     for row in dob_stats:
         if row['date_of_birth']:
             dob = row['date_of_birth']
+            if isinstance(dob, str):
+                from datetime import datetime
+                dob = datetime.strptime(dob, '%Y-%m-%d').date()
             age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
         else:
             age = None
@@ -177,6 +202,9 @@ def analyze():
     for row in category_age_raw:
         if row['date_of_birth']:
             dob = row['date_of_birth']
+            if isinstance(dob, str):
+                from datetime import datetime
+                dob = datetime.strptime(dob, '%Y-%m-%d').date()
             age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
         else:
             age = None

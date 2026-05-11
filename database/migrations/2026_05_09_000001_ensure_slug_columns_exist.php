@@ -13,14 +13,14 @@ return new class extends Migration
         // Đảm bảo bảng categories có column slug
         if (!Schema::hasColumn('categories', 'slug')) {
             Schema::table('categories', function (Blueprint $table) {
-                $table->string('slug', 256)->nullable()->after('name');
+                $table->string('slug', 256)->nullable();
             });
         }
 
         // Đảm bảo bảng products có column slug
         if (!Schema::hasColumn('products', 'slug')) {
             Schema::table('products', function (Blueprint $table) {
-                $table->string('slug', 256)->nullable()->after('name');
+                $table->string('slug', 256)->nullable();
             });
         }
 

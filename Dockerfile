@@ -1,5 +1,5 @@
 # ============================================================
-# ByteBox - Laravel on Render (PHP 8.3 + Nginx + MySQL)
+# ByteBox - Laravel on Render (PHP 8.3 + Nginx + PostgreSQL)
 # ============================================================
 
 FROM php:8.3-fpm AS base
@@ -8,13 +8,14 @@ FROM php:8.3-fpm AS base
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
     libwebp-dev libzip-dev libonig-dev libxml2-dev libicu-dev \
+    libpq-dev \
     nginx supervisor python3 python3-pip python3-venv \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache \
+    && docker-php-ext-install pdo pdo_pgsql pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Python mysql-connector for analytics script
-RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install mysql-connector-python
+# Install Python psycopg2 for analytics script (PostgreSQL driver)
+RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install psycopg2-binary mysql-connector-python
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Composer
