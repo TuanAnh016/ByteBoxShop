@@ -13,13 +13,13 @@ from datetime import date
 
 # Import database drivers at top level so they are always in scope
 try:
-    import psycopg2
-    import psycopg2.extras
+    import psycopg2          # type: ignore
+    import psycopg2.extras   # type: ignore
 except ImportError:
     psycopg2 = None
 
 try:
-    import mysql.connector
+    import mysql.connector   # type: ignore
 except ImportError:
     mysql = None
 
