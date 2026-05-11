@@ -11,6 +11,13 @@ import json
 import os
 from datetime import date
 
+# Import psycopg2 at top level so it is always in scope
+try:
+    import psycopg2
+    import psycopg2.extras
+except ImportError:
+    psycopg2 = None
+
 # Force UTF-8 for stdout to handle Vietnamese characters on Windows
 if sys.stdout.encoding != 'UTF-8':
     import io
@@ -59,10 +66,7 @@ def connect_db():
         cursor = conn.cursor(dictionary=True)
     else:
         # PostgreSQL — prefer DATABASE_URL string if available (Render)
-        try:
-            import psycopg2
-            import psycopg2.extras
-        except ImportError:
+        if psycopg2 is None:
             print(json.dumps({"error": "psycopg2 not installed. Run: pip install psycopg2-binary"}))
             sys.exit(1)
         if DATABASE_URL:
