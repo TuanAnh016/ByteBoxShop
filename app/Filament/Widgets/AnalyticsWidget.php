@@ -19,6 +19,9 @@ class AnalyticsWidget extends BaseWidget
 
     protected function getStats(): array
     {
+        if (!Cache::has('bytebox_analytics')) {
+            \Illuminate\Support\Facades\Artisan::call('analytics:run');
+        }
         $data = Cache::get('bytebox_analytics');
 
         if (!$data) {

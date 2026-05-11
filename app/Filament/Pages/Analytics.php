@@ -18,6 +18,9 @@ class Analytics extends Page
 
     public function getViewData(): array
     {
+        if (!Cache::has('bytebox_analytics')) {
+            \Illuminate\Support\Facades\Artisan::call('analytics:run');
+        }
         $data = Cache::get('bytebox_analytics');
         return ['analyticsData' => $data];
     }

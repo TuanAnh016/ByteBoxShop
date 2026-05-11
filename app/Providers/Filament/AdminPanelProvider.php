@@ -15,7 +15,7 @@ use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -29,9 +29,26 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->defaultThemeMode(\Filament\Enums\ThemeMode::Dark)
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => '#f2ca50',
             ])
+            ->font('Manrope')
+            ->brandLogo(fn () => view('filament.logo'))
+            ->brandLogoHeight('4rem')
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::BODY_START,
+                fn (): string => request()->routeIs('filament.admin.auth.login') 
+                    ? \Illuminate\Support\Facades\Blade::render('
+                        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 800px; height: 800px; border-radius: 50%; filter: blur(100px); opacity: 0.15; pointer-events: none; background-color: #f2ca50; z-index: 0;"></div>
+                        <style>
+                            body { background-color: #131313 !important; }
+                            .fi-simple-main { background-color: #1c1b1b !important; border: 1px solid rgba(77, 70, 53, 0.2); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); border-top: 2px solid #f2ca50; position: relative; z-index: 10; border-radius: 1rem; }
+                            .fi-btn { background: linear-gradient(135deg, #f2ca50 0%, #d4af37 100%) !important; color: #3c2f00 !important; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; border: none; }
+                        </style>
+                    ') 
+                    : ''
+            )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -48,7 +65,7 @@ class AdminPanelProvider extends PanelProvider
                 StartSession::class,
                 AuthenticateSession::class,
                 ShareErrorsFromSession::class,
-                PreventRequestForgery::class,
+                VerifyCsrfToken::class,
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,

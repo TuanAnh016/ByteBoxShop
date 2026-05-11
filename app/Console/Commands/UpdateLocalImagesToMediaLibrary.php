@@ -2,16 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Attributes\Description;
-use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use App\Models\Product;
 use App\Models\Category;
 
-#[Signature('app:update-local-images-to-media-library')]
-#[Description('Updates product and category images from local productimg folder using Media Library')]
 class UpdateLocalImagesToMediaLibrary extends Command
 {
+    protected $signature = 'app:update-local-images-to-media-library';
+    protected $description = 'Updates product and category images from local productimg folder using Media Library';
     public function handle()
     {
         $mapping = [

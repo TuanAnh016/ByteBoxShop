@@ -2,18 +2,16 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Attributes\Description;
-use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
-#[Signature('app:migrate-images-to-media-library')]
-#[Description('Migrate existing product and category images to Spatie Media Library')]
 class MigrateImagesToMediaLibrary extends Command
 {
+    protected $signature = 'app:migrate-images-to-media-library';
+    protected $description = 'Migrate existing product and category images to Spatie Media Library';
     /**
      * Execute the console command.
      */

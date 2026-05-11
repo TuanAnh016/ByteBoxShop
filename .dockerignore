@@ -1,0 +1,27 @@
+# Render Ignore — exclude dev/debug files from deployment
+/.git
+/node_modules
+/tests
+/.vscode
+/.idea
+/.cursor
+/.codex
+/.zed
+*.log
+Homestead.json
+Homestead.yaml
+.phpunit.result.cache
+.phpunit.cache
+_ide_helper.php
+check_media.php
+check_vietnamese_data.php
+final_check.php
+run_sql.php
+check_tables.sql
+alter_tables.sql
+fix_charset.sql
+db.sql
+db_local_export.sql
+db_utf8mb4.sql
+tables.txt
+agent/
