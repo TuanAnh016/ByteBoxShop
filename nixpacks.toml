@@ -41,8 +41,8 @@ cmds = [
 cmds = [
     "npm run build",
     "php artisan storage:link || true",
-    "mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data",
-    "chmod -R 775 storage bootstrap/cache"
+    "mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data logs",
+    "chmod -R 777 storage bootstrap/cache"
 ]
 
 [start]
