@@ -16,6 +16,9 @@ if ! command -v php &> /dev/null; then
     alias php="pkgx php"
 fi
 
+echo "==> Clearing any stale config cache..."
+php artisan config:clear
+
 echo "===> Running migrations..."
 php artisan migrate --force
 
