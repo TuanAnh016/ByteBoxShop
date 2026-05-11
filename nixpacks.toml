@@ -1,0 +1,49 @@
+# Nixpacks configuration for PHP/Laravel on Render Free Tier
+# This tells Render's build system to install PHP + Node.js
+
+providers = []
+
+[phases.setup]
+nixPkgs = [
+    "php83",
+    "php83Extensions.pdo",
+    "php83Extensions.pdo_pgsql",
+    "php83Extensions.mbstring",
+    "php83Extensions.gd",
+    "php83Extensions.zip",
+    "php83Extensions.intl",
+    "php83Extensions.bcmath",
+    "php83Extensions.exif",
+    "php83Extensions.opcache",
+    "php83Extensions.fileinfo",
+    "php83Extensions.tokenizer",
+    "php83Extensions.dom",
+    "php83Extensions.xml",
+    "php83Extensions.xmlwriter",
+    "php83Extensions.xmlreader",
+    "php83Extensions.curl",
+    "php83Extensions.ctype",
+    "php83Extensions.openssl",
+    "php83Extensions.session",
+    "php83Packages.composer",
+    "nodejs_20",
+    "python3"
+]
+
+[phases.install]
+cmds = [
+    "composer install --no-dev --optimize-autoloader --no-interaction",
+    "npm ci || npm install",
+    "pip install psycopg2-binary || true"
+]
+
+[phases.build]
+cmds = [
+    "npm run build",
+    "php artisan storage:link || true",
+    "mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data",
+    "chmod -R 775 storage bootstrap/cache"
+]
+
+[start]
+cmd = "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"
