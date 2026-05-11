@@ -23,6 +23,15 @@ php artisan view:cache
 echo ">> Running migrations..."
 php artisan migrate --force
 
+# Seed data only if products table is empty (first deploy)
+PRODUCT_COUNT=$(php artisan tinker --execute="echo \App\Models\Product::count();" 2>/dev/null | tail -1 || echo "0")
+if [ "$PRODUCT_COUNT" = "0" ]; then
+    echo ">> Seeding initial data (products, categories, users)..."
+    php artisan db:seed --force
+else
+    echo ">> Database already has data (${PRODUCT_COUNT} products), skipping seed."
+fi
+
 # Create storage link (in case it doesn't exist)
 php artisan storage:link 2>/dev/null || true
 
