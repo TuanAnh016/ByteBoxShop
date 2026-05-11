@@ -16,13 +16,28 @@ if sys.stdout.encoding != 'UTF-8':
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-# --- DB Config from environment or defaults ---
+# --- DB Config from environment ---
+# Render provides DATABASE_URL as a full connection string.
+# Parse it first; fall back to individual DB_* vars for local dev.
+DATABASE_URL = os.environ.get('DATABASE_URL', '')
 DB_CONNECTION = os.environ.get('DB_CONNECTION', 'pgsql')
-DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
-DB_PORT = int(os.environ.get('DB_PORT', 5432))
-DB_NAME = os.environ.get('DB_DATABASE', 'bytebox')
-DB_USER = os.environ.get('DB_USERNAME', 'root')
-DB_PASS = os.environ.get('DB_PASSWORD', '')
+
+if DATABASE_URL:
+    from urllib.parse import urlparse
+    _u = urlparse(DATABASE_URL)
+    DB_HOST = _u.hostname or '127.0.0.1'
+    DB_PORT = _u.port or 5432
+    DB_NAME = (_u.path or '/bytebox').lstrip('/')
+    DB_USER = _u.username or 'root'
+    DB_PASS = _u.password or ''
+    # Render uses postgresql:// scheme → always pgsql
+    DB_CONNECTION = 'pgsql'
+else:
+    DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')
+    DB_PORT = int(os.environ.get('DB_PORT', 5432 if DB_CONNECTION == 'pgsql' else 3306))
+    DB_NAME = os.environ.get('DB_DATABASE', 'bytebox')
+    DB_USER = os.environ.get('DB_USERNAME', 'root')
+    DB_PASS = os.environ.get('DB_PASSWORD', '')
 
 # Try to import the right database driver
 conn = None
@@ -43,17 +58,20 @@ def connect_db():
         )
         cursor = conn.cursor(dictionary=True)
     else:
-        # PostgreSQL
+        # PostgreSQL — prefer DATABASE_URL string if available (Render)
         try:
             import psycopg2
             import psycopg2.extras
         except ImportError:
             print(json.dumps({"error": "psycopg2 not installed. Run: pip install psycopg2-binary"}))
             sys.exit(1)
-        conn = psycopg2.connect(
-            host=DB_HOST, port=DB_PORT,
-            dbname=DB_NAME, user=DB_USER, password=DB_PASS
-        )
+        if DATABASE_URL:
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        else:
+            conn = psycopg2.connect(
+                host=DB_HOST, port=DB_PORT,
+                dbname=DB_NAME, user=DB_USER, password=DB_PASS
+            )
         cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
 
