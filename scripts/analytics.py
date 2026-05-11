@@ -11,12 +11,17 @@ import json
 import os
 from datetime import date
 
-# Import psycopg2 at top level so it is always in scope
+# Import database drivers at top level so they are always in scope
 try:
     import psycopg2
     import psycopg2.extras
 except ImportError:
     psycopg2 = None
+
+try:
+    import mysql.connector
+except ImportError:
+    mysql = None
 
 # Force UTF-8 for stdout to handle Vietnamese characters on Windows
 if sys.stdout.encoding != 'UTF-8':
@@ -53,9 +58,7 @@ cursor = None
 def connect_db():
     global conn, cursor
     if DB_CONNECTION == 'mysql':
-        try:
-            import mysql.connector
-        except ImportError:
+        if mysql is None:
             print(json.dumps({"error": "mysql-connector-python not installed. Run: pip install mysql-connector-python"}))
             sys.exit(1)
         conn = mysql.connector.connect(
