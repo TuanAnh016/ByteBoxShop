@@ -29,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->authGuard('web')
             ->defaultThemeMode(\Filament\Enums\ThemeMode::Dark)
             ->colors([
                 'primary' => '#f2ca50',

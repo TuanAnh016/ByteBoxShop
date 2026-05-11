@@ -20,7 +20,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if (config('app.env') === 'production') {
+            // Force HTTPS for all generated URLs (needed behind Render's reverse proxy)
             \Illuminate\Support\Facades\URL::forceScheme('https');
+
+            // Ensure session cookies are sent over HTTPS only
+            // This prevents the browser from dropping the session cookie
+            config([
+                'session.secure'    => true,
+                'session.same_site' => 'lax',
+            ]);
         }
     }
 }

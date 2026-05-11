@@ -15,8 +15,8 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        // Allow users with the super_admin role to access the panel
-        return $this->hasRole('super_admin') || $this->role === 'admin';
+        // Check the role column directly — no Spatie DB query needed
+        return in_array($this->role, ['admin', 'super_admin']);
     }
 
     protected $fillable = ['name', 'email', 'password', 'role', 'gender', 'date_of_birth'];
