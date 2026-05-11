@@ -48,21 +48,17 @@ class AuthController extends Controller
             'date_of_birth' => 'nullable|date|before:today|after:1900-01-01',
         ]);
 
-        try {
-            $user = User::create([
-                'name'          => $request->name,
-                'email'         => $request->email,
-                'password'      => Hash::make($request->password),
-                'role'          => 'customer',
-                'gender'        => $request->gender,
-                'date_of_birth' => $request->date_of_birth,
-            ]);
+        $user = User::create([
+            'name'          => $request->name,
+            'email'         => $request->email,
+            'password'      => Hash::make($request->password),
+            'role'          => 'customer',
+            'gender'        => $request->gender,
+            'date_of_birth' => $request->date_of_birth,
+        ]);
 
-            Auth::login($user);
-            return redirect()->route('home')->with('success', 'Đăng ký thành công!');
-        } catch (\Exception $e) {
-            return response('Registration Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine(), 500);
-        }
+        Auth::login($user);
+        return redirect()->route('home')->with('success', 'Đăng ký thành công!');
     }
 
     public function logout(Request $request)
