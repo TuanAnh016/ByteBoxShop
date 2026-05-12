@@ -14,17 +14,16 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (config('app.env') === 'production') {
+        $appUrl = config('app.url');
+        
+        if (str_starts_with($appUrl, 'https://') || request()->header('X-Forwarded-Proto') === 'https') {
             // Force HTTPS for all generated URLs (needed behind Render's reverse proxy)
             // This also fixes Livewire 3 / Filament login AJAX requests
             URL::forceScheme('https');
 
             // Force the root URL so Livewire generates correct update endpoints
             // Without this, Livewire POSTs to http:// which browsers block as mixed content
-            $appUrl = config('app.url');
-            if ($appUrl) {
-                URL::forceRootUrl(str_replace('http://', 'https://', $appUrl));
-            }
+            URL::forceRootUrl(str_replace('http://', 'https://', $appUrl));
 
             // Ensure session cookies are sent over HTTPS only
             config([
